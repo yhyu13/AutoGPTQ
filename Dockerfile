@@ -23,8 +23,7 @@ RUN . /build/venv/bin/activate && \
 
 RUN . /build/venv/bin/activate && \
     pip3 install --upgrade pip setuptools && \
-    pip3 install torch torchvision torchaudio && \
-    pip3 install -r requirements.txt
+    pip3 install torch torchvision torchaudio
 
 # https://developer.nvidia.com/cuda-gpus
 # for a rtx 2060: ARG TORCH_CUDA_ARCH_LIST="7.5"
@@ -32,7 +31,7 @@ RUN . /build/venv/bin/activate && \
 ARG TORCH_CUDA_ARCH_LIST="8.6"
 RUN . /build/venv/bin/activate && \
     pip3 install wheel && \
-    python3 setup_cuda.py bdist_wheel -d .
+    python3 setup.py bdist_wheel -d .
 
 RUN mkdir /result && cp /build/*whl /result
 

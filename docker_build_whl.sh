@@ -3,7 +3,7 @@
 # fill in the cuda arch list
 TORCH_CUDA_ARCH_LIST="8.6"
 
-docker build --build-arg TORCH_CUDA_ARCH_LIST=$TORCH_CUDA_ARCH_LIST --network host -t autogptq-cuda .
+docker build --build-arg TORCH_CUDA_ARCH_LIST=$TORCH_CUDA_ARCH_LIST --no-cache --network host -t autogptq-cuda .
 docker run -d --name autogptq-cuda-container autogptq-cuda
 docker ps -all
 

@@ -35,21 +35,22 @@ def main():
     parser.add_argument("--num_samples", type=int, default=20, help="how many samples will be sampled to evaluation")
     parser.add_argument("--sample_max_len", type=int, default=1024, help="max tokens for each sample")
     parser.add_argument("--block_max_len", type=int, default=2048, help="max tokens for each data block")
-    parser.add_argument("--use_triton", default=False, action="store_true")
+    parser.add_argument("--use_triton", type=bool, default=False)
+    parser.add_argument("--use_safetensor", type=bool, default=False)
     parser.add_argument("--trust_remote_code", type=bool, default=True)
     args = parser.parse_args()
 
-    tokenizer = AutoTokenizer.from_pretrained(args.quantized_model_dir,use_fast=False)
-    model = AutoGPTQForCausalLM.from_quantized(args.quantized_model_dir, use_fast=False, device="cuda:1", use_triton=args.use_triton, trust_remote_code=args.trust_remote_code)
-    
+    tokenizer = AutoTokenizer.from_pretrained(args.quantized_model_dir,trust_remote_code=args.trust_remote_code)
+    model = AutoGPTQForCausalLM.from_quantized(args.quantized_model_dir, use_safetensors=args.use_safetensor, device="cuda:1", use_triton=args.use_triton, trust_remote_code=args.trust_remote_code)
+
+    # sample some prompt    
     prompt = "Write a story about llamas"
     prompt_template = f"### Instruction: {prompt}\n### Response:"
-
     tokens = tokenizer(prompt_template, return_tensors="pt").to("cuda:1").input_ids
     output = model.generate(input_ids=tokens, max_new_tokens=100, do_sample=True, temperature=0.8)
     print(tokenizer.decode(output[0]))
-
-    """     
+  
+    # run the eval tasks
     task = LanguageModelingTask(
         model=model,
         tokenizer=tokenizer,
@@ -67,7 +68,7 @@ def main():
     )
 
     print(f"eval result for quantized model: {task.run()}")
-    """
+    
 
 if __name__ == "__main__":
     main()

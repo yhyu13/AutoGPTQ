@@ -1,8 +1,8 @@
 #!/bin/bash
 
 export PY_SCRIPT=scripts/falcon_quant.py
-export ORIGIN_DIR=/media/hangyu5/Home/Documents/Hugging-Face/falcon-40b
-export OUTPUT_DIR=/media/hangyu5/Home/Documents/Hugging-Face/falcon-40b-autogptq
+export ORIGIN_DIR=/media/hangyu5/Home/Documents/Hugging-Face/falcon-7b-instruct
+export OUTPUT_DIR=/media/hangyu5/Home/Documents/Hugging-Face/falcon-7b-instruct-autogptq
 rm -rf $OUTPUT_DIR
 mkdir $OUTPUT_DIR
 

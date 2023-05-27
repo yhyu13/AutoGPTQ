@@ -55,12 +55,12 @@ def main():
     # load un-quantized model, the model will always be force loaded into cpu
     quantize_config = BaseQuantizeConfig(
         bits=4,  # quantize model to 4-bit
-        group_size=128,  # it is recommended to set the value to 128
+        group_size=64,  # it is recommended to set the value to 128
         desc_act=False,  # desc_act and groupsize only works on triton
     )
     
     # get model maximum sequence length
-    model = AutoGPTQForCausalLM.from_pretrained(pretrained_model_dir, quantize_config, trust_remote_code=True, torch_dtype=torch.bfloat16, device_map=device_map)
+    model = AutoGPTQForCausalLM.from_pretrained(pretrained_model_dir, quantize_config, trust_remote_code=True, torch_dtype=torch.bfloat16, device_map=device_map, low_cpu_mem_usage=True)
     model_config = model.config.to_dict()
     seq_len_keys = ["max_position_embeddings", "seq_length", "n_positions"]
     if any([k in model_config for k in seq_len_keys]):
@@ -69,6 +69,7 @@ def main():
                 model.seqlen = model_config[key]
                 break
     else:
+        print("set model.seqlen = 2048 by default")
         model.seqlen = 2048
      
     # load train dataset for quantize
@@ -79,7 +80,7 @@ def main():
     model.quantize(traindataset, use_triton=False)
 
     # save quantized model
-    model.save_quantized(quantized_model_dir)
+    model.save_quantized(quantized_model_dir, use_safetensors=True)
     
 import logging
 

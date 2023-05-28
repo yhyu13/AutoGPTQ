@@ -10,18 +10,17 @@ import argparse
 parser = argparse.ArgumentParser(description='Quantize a pre-trained GPT model')
 parser.add_argument('--pre_trained_dir', type=str, help='Directory of the pre-trained model')
 parser.add_argument('--quant_dir', type=str, help='Directory to save the quantized model')
+parser.add_argument('--group_size', type=int, default=128 , help='Group Size')
 
 args = parser.parse_args()
 
 pretrained_model_dir = args.pre_trained_dir
 quantized_model_dir = args.quant_dir
+group_size = args.group_size
 
-device_map = {
-    0: "20GiB",
-    1: "20GiB",
-    "cpu": "200GiB"
-}
-
+device_map = "balanced"
+max_memory = {0: "20GIB", 1: "4GIB", "cpu": "200GIB"}
+ 
 torch.set_num_threads(40)
 
 def get_wikitext2(nsamples, seed, seqlen, tokenizer):
@@ -55,12 +54,12 @@ def main():
     # load un-quantized model, the model will always be force loaded into cpu
     quantize_config = BaseQuantizeConfig(
         bits=4,  # quantize model to 4-bit
-        group_size=64,  # it is recommended to set the value to 128
+        group_size=group_size,  # it is recommended to set the value to 128
         desc_act=False,  # desc_act and groupsize only works on triton
     )
     
     # get model maximum sequence length
-    model = AutoGPTQForCausalLM.from_pretrained(pretrained_model_dir, quantize_config, trust_remote_code=True, torch_dtype=torch.bfloat16, device_map=device_map, low_cpu_mem_usage=True)
+    model = AutoGPTQForCausalLM.from_pretrained(pretrained_model_dir, quantize_config, trust_remote_code=True, torch_dtype=torch.bfloat16, max_memory=max_memory, device_map=device_map, low_cpu_mem_usage=True)
     model_config = model.config.to_dict()
     seq_len_keys = ["max_position_embeddings", "seq_length", "n_positions"]
     if any([k in model_config for k in seq_len_keys]):

@@ -29,6 +29,7 @@ RUN . /build/venv/bin/activate && \
 # for a rtx 2060: ARG TORCH_CUDA_ARCH_LIST="7.5"
 # yhyu13 : edit for your rig, mine is 3090, so 8.6
 ARG TORCH_CUDA_ARCH_LIST="8.6"
+ENV BUILD_CUDA_EXT=1 
 RUN . /build/venv/bin/activate && \
     pip3 install wheel && \
     python3 setup.py bdist_wheel -d .

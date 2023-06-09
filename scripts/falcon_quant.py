@@ -19,7 +19,7 @@ quantized_model_dir = args.quant_dir
 group_size = args.group_size
 
 device_map = "balanced"
-max_memory = {0: "20GIB", 1: "4GIB", "cpu": "200GIB"}
+max_memory = {0: "22GiB", 1: "22GiB", "cpu": "200GiB"}
  
 torch.set_num_threads(40)
 
@@ -76,7 +76,11 @@ def main():
 
     # quantize model, the examples should be list of dict whose keys contains "input_ids" and "attention_mask"
     # with value under torch.LongTensor type.
-    model.quantize(traindataset, use_triton=False)
+    try : 
+        model.quantize(traindataset, use_triton=False)
+    except Exception as e:
+        print(f'Save use_triton=False falied due to {str(e)}, try use_triton=True')
+        model.quantize(traindataset, use_triton=True)
 
     # save quantized model
     model.save_quantized(quantized_model_dir, use_safetensors=True)
